@@ -41,6 +41,7 @@ class Model:
         }
         self.queen_index = list(range(self.size))
         self.mod_list = [(0, 1), (1, 0), (0, -1), (-1, 0)]
+        self.win_check_list = [(0, 1), (1, 0), (0, -1), (-1, 0), (-1, -1), (-1, 1), (1, -1), (1, 1)]
         self.placed_board = []
         self.colored_board = []
         self.placed_coords = []
@@ -213,7 +214,7 @@ class Model:
                 return True
         return False
     
-    def check_square_win(self):
+    def check_region_win(self):
         region_list = []
         for square in self.square_color_dict:
             color_count = 0
@@ -224,3 +225,18 @@ class Model:
         if set(region_list) == {1}:
             return True
         return False
+    
+    def check_square_win(self):
+        for coord in self.placed_coords:
+            for mod in self.win_check_list:
+                new_coord = tuple(abs(a + b) for a, b in zip(coord, mod))
+                if (new_coord in self.placed_coords) and (new_coord != coord):
+                    return False
+        return True
+    
+    def check_win(self):
+        criteria = [self.check_region_win(), self.check_row_col_win(), self.check_square_win()]
+        if False in criteria:
+            return False
+        else: 
+            return True
